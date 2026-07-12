@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cleaner id="google_chrome" os="windows">
+  <label>Google Chrome</label>
+  <description>Web browser</description>
+  <running type="exe" os="windows" same_user="true">chrome.exe</running>
+  <var name="base">
+    <value os="windows">%LocalAppData%\Google\Chrome\User Data</value>
+  </var>
+  <var name="profile">
+    <value os="windows">%LocalAppData%\Google\Chrome\User Data\Default</value>
+    <value search="glob" os="windows">%LocalAppData%\Google\Chrome\User Data\Profile *</value>
+  </var>
+  <option id="cache">
+    <label>Cache</label>
+    <description>Delete the web cache</description>
+    <action command="delete" search="walk.all" path="$$base$$\component_crx_cache"/>
+    <action command="delete" search="walk.all" path="$$base$$\extensions_crx_cache"/>
+    <action command="delete" search="walk.all" path="$$base$$\GrShaderCache"/>
+    <action command="delete" search="walk.all" path="$$base$$\ShaderCache"/>
+    <action command="delete" search="walk.all" path="$$profile$$\GPUCache\"/>
+    <action command="delete" search="walk.files" path="$$profile$$\Cache\"/>
+    <action command="delete" search="walk.files" path="$$profile$$\Code Cache\"/>
+    <action command="delete" search="walk.files" path="$$profile$$\Media Cache\"/>
+  </option>
+  <option id="cookies">
+    <label>Cookies</label>
+    <description>Delete cookies</description>
+    <action command="delete" search="file" path="$$profile$$\Cookies"/>
+    <action command="delete" search="file" path="$$profile$$\Cookies-journal"/>
+    <action command="delete" search="file" path="$$profile$$\Network\Cookies"/>
+    <action command="delete" search="file" path="$$profile$$\Network\Cookies-journal"/>
+  </option>
+  <option id="history">
+    <label>History</label>
+    <description>Delete browsing history</description>
+    <action command="delete" search="file" path="$$profile$$\History"/>
+    <action command="delete" search="file" path="$$profile$$\History-journal"/>
+    <action command="delete" search="file" path="$$profile$$\Archived History"/>
+    <action command="delete" search="file" path="$$profile$$\Archived History-journal"/>
+    <action command="delete" search="file" path="$$profile$$\Top Sites"/>
+    <action command="delete" search="file" path="$$profile$$\Top Sites-journal"/>
+    <action command="delete" search="file" path="$$profile$$\Visited Links"/>
+  </option>
+  <option id="session">
+    <label>Session</label>
+    <description>Previously open tabs and windows</description>
+    <action command="delete" search="file" path="$$profile$$\Current Session"/>
+    <action command="delete" search="file" path="$$profile$$\Current Tabs"/>
+    <action command="delete" search="file" path="$$profile$$\Last Session"/>
+    <action command="delete" search="file" path="$$profile$$\Last Tabs"/>
+  </option>
+  <option id="form_history">
+    <label>Form history</label>
+    <description>A history of forms entered in websites</description>
+    <action command="delete" search="file" path="$$profile$$\Web Data"/>
+  </option>
+  <option id="site_data">
+    <label>Site data</label>
+    <description>Delete LocalStorage, IndexedDB, and other data stored by websites</description>
+    <action command="delete" search="walk.all" path="$$profile$$\IndexedDB"/>
+    <action command="delete" search="walk.all" path="$$profile$$\Local Storage"/>
+    <action command="delete" search="walk.all" path="$$profile$$\Service Worker"/>
+    <action command="delete" search="walk.files" path="$$profile$$\Session Storage\"/>
+  </option>
+  <option id="passwords">
+    <label>Passwords</label>
+    <description>A database of usernames and passwords</description>
+    <warning>This option will delete your saved passwords.</warning>
+    <action command="delete" search="file" path="$$profile$$\Login Data"/>
+    <action command="delete" search="file" path="$$profile$$\Login Data-journal"/>
+  </option>
+</cleaner>

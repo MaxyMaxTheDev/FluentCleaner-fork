@@ -84,6 +84,12 @@
   <data name="DlgWarningContinue"><value>继续</value></data>
   <data name="DlgWarningCancel"><value>取消</value></data>
   <data name="DlgWarningMessage"><value>你选中的 Winapp2 清理条目包含以下风险警告：</value></data>
+  <data name="DlgCleanTitle"><value>确认清理</value></data>
+  <data name="DlgCleanSummary"><value>{0} 个文件，{1} 个注册表项 — 共 {2}</value></data>
+  <data name="DlgCleanDelete"><value>删除 {0}</value></data>
+  <data name="DlgCleanCancel"><value>取消</value></data>
+  <data name="DlgCleanAndMore"><value>... 还有 {0} 个{1}</value></data>
+  <data name="St_NothingToClean"><value>没有可清理的内容。</value></data>
   <data name="DlgExplainThinking"><value>AI 分析中…</value></data>
   <data name="DlgExplainClose"><value>关闭</value></data>
 
@@ -190,6 +196,8 @@
   <!-- Settings Page — code strings -->
   <data name="St_Winapp3NotDownloaded"><value>尚未下载 Winapp3，点击下载按钮获取。</value></data>
   <data name="St_WinappxNotDownloaded"><value>尚未下载 Winappx，点击下载按钮获取。</value></data>
+  <data name="St_CleanerMLNotDownloaded"><value>尚未下载 CleanerML，点击下载按钮获取。</value></data>
+  <data name="St_CleanerMLInfo"><value>{0} 个文件  •  {1} KB</value></data>
   <data name="St_HistoryNone"><value>暂无清理记录</value></data>
   <data name="St_HistorySummary"><value>共 {0} 次清理 · 累计释放 {1} 空间</value></data>
   <data name="St_HistoryItems"><value>{0}个清理项</value></data>

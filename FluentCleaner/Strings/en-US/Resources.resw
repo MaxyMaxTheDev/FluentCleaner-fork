@@ -85,6 +85,12 @@
   <data name="DlgWarningContinue"><value>Continue</value></data>
   <data name="DlgWarningCancel"><value>Cancel</value></data>
   <data name="DlgWarningMessage"><value>The selected Winapp2 entries include the following warnings:</value></data>
+  <data name="DlgCleanTitle"><value>Confirm cleaning</value></data>
+  <data name="DlgCleanSummary"><value>{0} files, {1} registry keys — {2} total</value></data>
+  <data name="DlgCleanDelete"><value>Delete {0}</value></data>
+  <data name="DlgCleanCancel"><value>Cancel</value></data>
+  <data name="DlgCleanAndMore"><value>... and {0} more {1}</value></data>
+  <data name="St_NothingToClean"><value>Nothing to clean.</value></data>
   <data name="DlgExplainThinking"><value>Thinking…</value></data>
   <data name="DlgExplainClose"><value>Close</value></data>
   <data name="DlgRestartTitle"><value>Restart required</value></data>
@@ -195,6 +201,8 @@
   <!-- Settings Page — code strings -->
   <data name="St_Winapp3NotDownloaded"><value>Winapp3 not downloaded yet — click Download.</value></data>
   <data name="St_WinappxNotDownloaded"><value>Winappx not downloaded yet — click Download.</value></data>
+  <data name="St_CleanerMLNotDownloaded"><value>CleanerML not downloaded yet — click Download.</value></data>
+  <data name="St_CleanerMLInfo"><value>{0} files  •  {1} KB</value></data>
   <data name="St_HistoryNone"><value>no runs recorded yet</value></data>
   <data name="St_HistorySummary"><value>{0} runs · {1} total freed</value></data>
   <data name="St_HistoryItems"><value>{0} items</value></data>

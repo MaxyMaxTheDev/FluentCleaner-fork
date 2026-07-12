@@ -17,13 +17,19 @@ public static class SilentRunner
         if (paths.Count == 0)
             paths.Add(Path.Combine(AppContext.BaseDirectory, "Winapp2.ini"));
 
-        var parser    = new Winapp2Parser();
-        var detection = new DetectionService();
-        var cleaner   = new CleaningService();
+        var parser      = new Winapp2Parser();
+        var cleanerML   = new CleanerMLParser();
+        var detection   = new DetectionService();
+        var cleaner     = new CleaningService();
 
         var allEntries = new List<CleanerEntry>();
         foreach (var p in paths)
-            allEntries.AddRange(await parser.ParseFileAsync(p));
+        {
+            var entries = AppSettings.IsCleanerML(p)
+                ? await cleanerML.ParseFileAsync(p)
+                : await parser.ParseFileAsync(p);
+            allEntries.AddRange(entries);
+        }
 
         // Custom/ folder entries;same as the GUI does via CustomEntryService
         allEntries.AddRange(await new CustomEntryService().LoadEnabledEntriesAsync());

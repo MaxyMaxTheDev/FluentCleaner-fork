@@ -9,6 +9,7 @@ namespace FluentCleaner.ViewModels;
 public class CliCleanerModule
 {
     private readonly Winapp2Parser    _parser    = new();
+    private readonly CleanerMLParser  _cleanerML = new();
     private readonly DetectionService _detection = new();
     private readonly CleaningService  _cleaner   = new();
 
@@ -30,7 +31,12 @@ public class CliCleanerModule
         var paths = AppSettings.Instance.ResolveDatabasePaths().ToList();
         var all   = new List<CleanerEntry>();
         foreach (var path in paths)
-            all.AddRange(await _parser.ParseFileAsync(path));
+        {
+            var entries = AppSettings.IsCleanerML(path)
+                ? await _cleanerML.ParseFileAsync(path)
+                : await _parser.ParseFileAsync(path);
+            all.AddRange(entries);
+        }
 
         all      = all.DistinctBy(e => e.Name, StringComparer.OrdinalIgnoreCase).ToList();
         _entries = await Task.Run(() => all.Where(_detection.IsInstalled).ToList());

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cleaner id="temp_files" os="windows">
+  <label>Temporary Files</label>
+  <description>System and user temporary files</description>
+  <option id="user_temp">
+    <label>User temp folder</label>
+    <description>Delete temporary files in the user temp folder</description>
+    <action command="delete" search="walk.files" path="%TEMP%\"/>
+  </option>
+  <option id="system_temp">
+    <label>System temp folder</label>
+    <description>Delete temporary files in the system temp folder</description>
+    <action command="delete" search="walk.files" path="%SystemRoot%\Temp\"/>
+  </option>
+  <option id="windows_logs">
+    <label>Windows logs</label>
+    <description>Delete Windows log files</description>
+    <action command="delete" search="glob" path="%SystemRoot%\Temp\*.log"/>
+    <action command="delete" search="glob" path="%SystemRoot%\Temp\*.tmp"/>
+    <action command="delete" search="walk.files" path="%SystemRoot%\Logs\"/>
+  </option>
+  <option id="prefetch">
+    <label>Prefetch</label>
+    <description>Delete the prefetch cache</description>
+    <action command="delete" search="walk.files" path="%SystemRoot%\Prefetch\"/>
+  </option>
+</cleaner>

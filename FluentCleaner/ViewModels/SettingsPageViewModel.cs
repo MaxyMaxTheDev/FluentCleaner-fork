@@ -15,13 +15,15 @@ public record LanguageOption(string Code, string Name);
 
 public partial class SettingsPageViewModel : ObservableObject
 {
-    private const string Winapp2Url  = "https://raw.githubusercontent.com/builtbybel/FluentCleaner/master/Winapp2.ini";
-    private const string Winapp3Url  = "https://raw.githubusercontent.com/MoscaDotTo/Winapp2/master/Winapp3/Winapp3.ini";
-    private const string WinappxUrl  = "https://raw.githubusercontent.com/builtbybel/FluentCleaner/master/Winappx.ini";
+    private const string Winapp2Url   = "https://raw.githubusercontent.com/builtbybel/FluentCleaner/master/Winapp2.ini";
+    private const string Winapp3Url   = "https://raw.githubusercontent.com/MoscaDotTo/Winapp2/master/Winapp3/Winapp3.ini";
+    private const string WinappxUrl   = "https://raw.githubusercontent.com/builtbybel/FluentCleaner/master/Winappx.ini";
+    private const string CleanerMLUrl = "https://raw.githubusercontent.com/bleachbit/cleanerml/master/release/google_chrome.xml";
 
-    private static string Winapp2LocalPath  => Path.Combine(AppContext.BaseDirectory, "Winapp2.ini");
-    private static string Winapp3LocalPath  => Path.Combine(AppContext.BaseDirectory, "Winapp3.ini");
-    private static string WinappxLocalPath  => Path.Combine(AppContext.BaseDirectory, "Winappx.ini");
+    private static string Winapp2LocalPath   => Path.Combine(AppContext.BaseDirectory, "Winapp2.ini");
+    private static string Winapp3LocalPath   => Path.Combine(AppContext.BaseDirectory, "Winapp3.ini");
+    private static string WinappxLocalPath   => Path.Combine(AppContext.BaseDirectory, "Winappx.ini");
+    private static string CleanerMLDir       => Path.Combine(AppContext.BaseDirectory, "Cleaners");
 
     // --- Observable state -----------------------------------------------------
 
@@ -29,16 +31,20 @@ public partial class SettingsPageViewModel : ObservableObject
     [ObservableProperty] public partial bool   EnableWinapp2 { get; set; } = true;
     [ObservableProperty] public partial bool   EnableWinapp3 { get; set; }
     [ObservableProperty] public partial bool   EnableWinappx { get; set; } = true;
+    [ObservableProperty] public partial bool   EnableCleanerML { get; set; } = true;
     [ObservableProperty] public partial bool   Winapp3Available { get; set; }    // Winapp3.ini exists on disk
     [ObservableProperty] public partial bool   Winapp3NotAvailable { get; set; } // inverse; drives the Download button
     [ObservableProperty] public partial bool   WinappxAvailable { get; set; }    // Winappx.ini exists on disk
     [ObservableProperty] public partial bool   WinappxNotAvailable { get; set; } // inverse; drives the Download button
+    [ObservableProperty] public partial bool   CleanerMLAvailable { get; set; }  // Cleaners/ dir has XML files
+    [ObservableProperty] public partial bool   CleanerMLNotAvailable { get; set; }
     [ObservableProperty] public partial bool   IsCustomSource { get; set; }      // custom path row has a saved value
 
     // File-info strings shown below each database row
     [ObservableProperty] public partial string Winapp2Info { get; set; } = "";
     [ObservableProperty] public partial string Winapp3Info { get; set; } = "";
     [ObservableProperty] public partial string WinappxInfo { get; set; } = "";
+    [ObservableProperty] public partial string CleanerMLInfo { get; set; } = "";
 
     // Custom database path
     [ObservableProperty] public partial string CustomPath { get; set; } = "";
@@ -152,11 +158,23 @@ public partial class SettingsPageViewModel : ObservableObject
         RefreshFileInfo();
     }
 
+    partial void OnEnableCleanerMLChanged(bool value)
+    {
+        if (_refreshing) return;
+        AppSettings.Instance.EnableCleanerML = value;
+        AppSettings.Instance.Save();
+        StatusText = value && !CleanerMLAvailable
+            ? ResourceService.Get("St_CleanerMLNotDownloaded")
+            : "";
+        RefreshFileInfo();
+    }
+
     partial void OnIsBusyChanged(bool value)
     {
         DownloadLatestCommand.NotifyCanExecuteChanged();
         DownloadWinapp3Command.NotifyCanExecuteChanged();
         DownloadWinappxCommand.NotifyCanExecuteChanged();
+        DownloadCleanerMLCommand.NotifyCanExecuteChanged();
     }
 
     // --- Post-clean tasks -----------------------------------------------------
@@ -253,10 +271,13 @@ public partial class SettingsPageViewModel : ObservableObject
         EnableWinapp2       = s.EnableWinapp2;
         EnableWinapp3       = s.EnableWinapp3;
         EnableWinappx       = s.EnableWinappx;
+        EnableCleanerML     = s.EnableCleanerML;
         Winapp3Available    = File.Exists(Winapp3LocalPath);
         Winapp3NotAvailable = !Winapp3Available;
         WinappxAvailable    = File.Exists(WinappxLocalPath);
         WinappxNotAvailable = !WinappxAvailable;
+        CleanerMLAvailable    = HasCleanerMLFiles();
+        CleanerMLNotAvailable = !CleanerMLAvailable;
         CustomPath          = s.CustomWinapp2Path ?? "";
         IsCustomSource      = !string.IsNullOrWhiteSpace(s.CustomWinapp2Path);
         PostCleanEnabled         = s.PostCleanEnabled;
@@ -338,6 +359,48 @@ public partial class SettingsPageViewModel : ObservableObject
         }
     }
 
+    [RelayCommand(CanExecute = nameof(CanDownload))]
+    private async Task DownloadCleanerMLAsync()
+    {
+        IsBusy = true;
+        StatusText = ResourceService.Fmt("St_Downloading", "CleanerML");
+        try
+        {
+            Directory.CreateDirectory(CleanerMLDir);
+            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+
+            // Download a few essential cleaners from the cleanerml repository
+            var files = new[]
+            {
+                ("google_chrome.xml",  "https://raw.githubusercontent.com/bleachbit/cleanerml/master/release/google_chrome.xml"),
+                ("windows_explorer.xml", "https://raw.githubusercontent.com/bleachbit/bleachbit/master/cleaners/windows_explorer.xml"),
+                ("windows_defender.xml", "https://raw.githubusercontent.com/bleachbit/bleachbit/master/cleaners/windows_defender.xml"),
+                ("firefox.xml",        "https://raw.githubusercontent.com/bleachbit/bleachbit/master/cleaners/firefox.xml"),
+                ("thunderbird.xml",    "https://raw.githubusercontent.com/bleachbit/bleachbit/master/cleaners/thunderbird.xml"),
+            };
+
+            int downloaded = 0;
+            foreach (var (fileName, url) in files)
+            {
+                try
+                {
+                    var content = await http.GetStringAsync(url);
+                    await File.WriteAllTextAsync(Path.Combine(CleanerMLDir, fileName), content);
+                    downloaded++;
+                }
+                catch { /* skip individual failures */ }
+            }
+
+            AppSettings.Instance.EnableCleanerML = true;
+            AppSettings.Instance.Save();
+            StatusText = ResourceService.Fmt("St_Downloaded", $"CleanerML ({downloaded} files)", 0);
+            RestartRequired = true;
+            Refresh();
+        }
+        catch (Exception ex) { StatusText = ResourceService.Fmt("St_DownloadFailed", ex.Message); }
+        finally { IsBusy = false; }
+    }
+
     private bool CanDownload() => !IsBusy;
 
     // Returns true on success, false on failure (error already written to StatusText).
@@ -362,9 +425,28 @@ public partial class SettingsPageViewModel : ObservableObject
 
     private void RefreshFileInfo()
     {
-        Winapp2Info = BuildFileInfo(Winapp2LocalPath);
-        Winapp3Info = BuildFileInfo(Winapp3LocalPath);
-        WinappxInfo = BuildFileInfo(WinappxLocalPath);
+        Winapp2Info   = BuildFileInfo(Winapp2LocalPath);
+        Winapp3Info   = BuildFileInfo(Winapp3LocalPath);
+        WinappxInfo   = BuildFileInfo(WinappxLocalPath);
+        CleanerMLInfo = BuildCleanerMLInfo();
+    }
+
+    private static bool HasCleanerMLFiles() =>
+        Directory.Exists(CleanerMLDir) && Directory.GetFiles(CleanerMLDir, "*.xml").Length > 0;
+
+    private static string BuildCleanerMLInfo()
+    {
+        try
+        {
+            if (!Directory.Exists(CleanerMLDir))
+                return ResourceService.Get("St_FileInfoNotDownloaded");
+            var xmlFiles = Directory.GetFiles(CleanerMLDir, "*.xml");
+            if (xmlFiles.Length == 0)
+                return ResourceService.Get("St_FileInfoNotDownloaded");
+            var totalSize = xmlFiles.Sum(f => new FileInfo(f).Length);
+            return ResourceService.Fmt("St_CleanerMLInfo", xmlFiles.Length, totalSize / 1024);
+        }
+        catch { return ""; }
     }
 
     private static string BuildFileInfo(string path)

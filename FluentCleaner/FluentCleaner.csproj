@@ -40,7 +40,10 @@
   <!-- these copies exist only so the language dropdown can discover available languages at    -->
   <!-- runtime by scanning Strings\{lang}\ (ResourceService.GetAvailableLanguages).            -->
   <ItemGroup>
-    <Content Include="Strings\**\*.resw">
+    <Content Include="..\Winapp2.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Cleaners\**\*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -80,6 +80,12 @@
   <data name="DlgWarningContinue"><value>Fortfahren</value></data>
   <data name="DlgWarningCancel"><value>Abbrechen</value></data>
   <data name="DlgWarningMessage"><value>Die ausgewählten Winapp2-Einträge enthalten folgende Warnungen:</value></data>
+  <data name="DlgCleanTitle"><value>Bereinigung bestätigen</value></data>
+  <data name="DlgCleanSummary"><value>{0} Dateien, {1} Registry-Einträge — {2} gesamt</value></data>
+  <data name="DlgCleanDelete"><value>{0} löschen</value></data>
+  <data name="DlgCleanCancel"><value>Abbrechen</value></data>
+  <data name="DlgCleanAndMore"><value>... und {0} weitere {1}</value></data>
+  <data name="St_NothingToClean"><value>Nichts zu bereinigen.</value></data>
   <data name="DlgExplainThinking"><value>Analysiere…</value></data>
   <data name="DlgExplainClose"><value>Schließen</value></data>
   <data name="DlgRestartTitle"><value>Neustart erforderlich</value></data>
@@ -185,6 +191,8 @@
 
   <data name="St_Winapp3NotDownloaded"><value>Winapp3 noch nicht heruntergeladen — auf Herunterladen klicken.</value></data>
   <data name="St_WinappxNotDownloaded"><value>Winappx noch nicht heruntergeladen — auf Herunterladen klicken.</value></data>
+  <data name="St_CleanerMLNotDownloaded"><value>CleanerML noch nicht heruntergeladen — auf Herunterladen klicken.</value></data>
+  <data name="St_CleanerMLInfo"><value>{0} Dateien  •  {1} KB</value></data>
   <data name="St_HistoryNone"><value>noch keine Einträge aufgezeichnet</value></data>
   <data name="St_HistorySummary"><value>{0} Vorgänge · {1} insgesamt freigegeben</value></data>
   <data name="St_HistoryItems"><value>{0} Einträge</value></data>

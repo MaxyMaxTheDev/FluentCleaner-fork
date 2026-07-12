@@ -46,6 +46,7 @@ public class AppSettings
     public bool EnableWinapp2 { get; set; } = true;
     public bool EnableWinapp3 { get; set; } = false;
     public bool EnableWinappx { get; set; } = true;   // AppX/bloatware database for terminal debloater
+    public bool EnableCleanerML { get; set; } = true;  // BleachBit CleanerML XML database
 
     // post-clean commands;one per line; global on/off switch
     public bool   PostCleanEnabled  { get; set; } = false;
@@ -100,9 +101,20 @@ public class AppSettings
             var p = Path.Combine(AppContext.BaseDirectory, "Winapp3.ini");
             if (File.Exists(p)) yield return p;
         }
+        if (EnableCleanerML)
+        {
+            var dir = Path.Combine(AppContext.BaseDirectory, "Cleaners");
+            if (Directory.Exists(dir))
+                foreach (var f in Directory.GetFiles(dir, "*.xml"))
+                    yield return f;
+        }
         if (!string.IsNullOrWhiteSpace(CustomWinapp2Path) && File.Exists(CustomWinapp2Path))
             yield return CustomWinapp2Path;
     }
+
+    // true when the path looks like a CleanerML XML file (vs Winapp2 INI)
+    public static bool IsCleanerML(string path) =>
+        path.EndsWith(".xml", StringComparison.OrdinalIgnoreCase);
 
     // returns the custom path if set and valid, otherwise falls back to the bundled Winapp2.ini
     public string ResolveWinapp2Path()

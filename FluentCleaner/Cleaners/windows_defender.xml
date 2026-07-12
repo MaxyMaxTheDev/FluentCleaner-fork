@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cleaner id="windows_defender" os="windows">
+  <label>Windows Defender</label>
+  <description>Antivirus</description>
+  <option id="history">
+    <label>History</label>
+    <description>Delete the scan history</description>
+    <action command="delete" search="walk.files" path="%ProgramData%\Microsoft\Windows Defender\Support\MPDetection-*"/>
+    <action command="delete" search="walk.files" path="%ProgramData%\Microsoft\Windows Defender\Support\MPLog-*"/>
+    <action command="delete" search="glob" path="%ProgramData%\Microsoft\Windows Defender\Scans\History\Service\*.*"/>
+    <action command="delete" search="walk.files" path="%ProgramData%\Microsoft\Windows Defender\Scans\History\Quick\*"/>
+    <action command="delete" search="walk.files" path="%ProgramData%\Microsoft\Windows Defender\Scans\History\Full\*"/>
+  </option>
+  <option id="logs">
+    <label>Logs</label>
+    <description>Delete diagnostic logs</description>
+    <action command="delete" search="glob" path="%ProgramData%\Microsoft\Windows Defender\Support\*.log"/>
+    <action command="delete" search="glob" path="%ProgramData%\Microsoft\Windows Defender\Support\*.dat"/>
+  </option>
+</cleaner>

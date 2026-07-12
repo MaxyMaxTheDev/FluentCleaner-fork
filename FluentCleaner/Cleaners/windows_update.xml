@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cleaner id="windows_update" os="windows">
+  <label>Windows Update</label>
+  <description>System update cache</description>
+  <option id="cache">
+    <label>Update cache</label>
+    <description>Delete downloaded update files</description>
+    <action command="delete" search="walk.files" path="%SystemRoot%\SoftwareDistribution\Download\"/>
+    <action command="delete" search="walk.files" path="%SystemRoot%\SoftwareDistribution\DataStore\"/>
+  </option>
+</cleaner>

@@ -12,6 +12,7 @@ public partial class CleanerPageViewModel : ObservableObject
 {
     // --- Services & fields --------------------------------------------------
     private readonly Winapp2Parser      _parser        = new();
+    private readonly CleanerMLParser    _cleanerML     = new();
     private readonly DetectionService  _detection     = new();
     private readonly CleaningService   _cleaner       = new();
     private readonly CustomEntryService _customService = new();
@@ -21,6 +22,9 @@ public partial class CleanerPageViewModel : ObservableObject
     private List<string> _lastPaths = [];                   // stored so Refresh can reload without the paths being passed again
     private bool _suppressSave;                             // prevents N disk writes when SelectAll/SelectNone fires per-entry callbacks
     private CancellationTokenSource? _cts;                  // lives only during an active scan or clean; null = nothing running
+
+    // Public read-only access to the last scan results (for the pre-clean confirmation dialog)
+    public IReadOnlyList<ScanResult> LastScanResults => _lastScan;
 
     // --- Observable state ---------------------------------------------------
     [ObservableProperty] public partial ObservableCollection<CleanerCategoryViewModel> Categories { get; set; } = [];    // left panel: category tree
@@ -114,7 +118,12 @@ public partial class CleanerPageViewModel : ObservableObject
 
         var allEntries = new List<CleanerEntry>();
         foreach (var path in filePaths)
-            allEntries.AddRange(await _parser.ParseFileAsync(path));
+        {
+            var entries = AppSettings.IsCleanerML(path)
+                ? await _cleanerML.ParseFileAsync(path)
+                : await _parser.ParseFileAsync(path);
+            allEntries.AddRange(entries);
+        }
 
         // Deduplicate entries that appear in multiple databases (by name)
         allEntries = allEntries.DistinctBy(e => e.Name, StringComparer.OrdinalIgnoreCase).ToList();

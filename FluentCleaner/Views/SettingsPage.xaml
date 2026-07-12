@@ -290,6 +290,64 @@
                         <!-- Divider -->
                         <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}" />
 
+                        <!-- CleanerML row -->
+                        <Grid MinHeight="72" Padding="18,0" ColumnSpacing="14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="112" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Icon -->
+                            <Border Grid.Column="0" Width="36" Height="36" CornerRadius="6"
+                                    Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                    Margin="0,0,12,0" VerticalAlignment="Center">
+                                <FontIcon Glyph="&#xE7C3;" FontSize="18"
+                                          Foreground="{ThemeResource SystemFillColorAttentionBrush}" />
+                            </Border>
+
+                            <!-- Name + info -->
+                            <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="CleanerML" FontWeight="SemiBold" />
+                                    <Border Background="{ThemeResource SystemFillColorAttentionBrush}"
+                                            CornerRadius="3" Padding="4,1" VerticalAlignment="Center">
+                                        <TextBlock Text="bleachbit" FontSize="10" Foreground="White" />
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock FontSize="11"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                    <Run Text="{x:Bind ViewModel.CleanerMLInfo, Mode=OneWay}" />
+                                    <Run Text="  —  BleachBit XML cleaning database."
+                                         Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                </TextBlock>
+                            </StackPanel>
+
+                            <!-- Download (not yet on disk) / Update (already downloaded) -->
+                            <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                        HorizontalAlignment="Right" Spacing="6">
+                                <Button Content="Download"
+                                        Command="{x:Bind ViewModel.DownloadCleanerMLCommand}"
+                                        Visibility="{x:Bind ViewModel.CleanerMLNotAvailable, Mode=OneWay,
+                                            Converter={StaticResource BoolToVisibilityConverter}}" />
+                                <Button Content="Update"
+                                        Command="{x:Bind ViewModel.DownloadCleanerMLCommand}"
+                                        Visibility="{x:Bind ViewModel.CleanerMLAvailable, Mode=OneWay,
+                                            Converter={StaticResource BoolToVisibilityConverter}}" />
+                            </StackPanel>
+
+                            <!-- Toggle -->
+                            <ToggleSwitch Grid.Column="3"
+                                          IsOn="{x:Bind ViewModel.EnableCleanerML, Mode=TwoWay}"
+                                          OnContent="" OffContent=""
+                                          MinWidth="0" Margin="0,0,-8,0"
+                                          VerticalAlignment="Center" />
+                        </Grid>
+
+                        <!-- Divider -->
+                        <Rectangle Height="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}" />
+
                         <!--Status / error text -->
                         <TextBlock Text="{x:Bind ViewModel.StatusText, Mode=OneWay}"
                                    FontSize="11" Margin="18,8,18,8"

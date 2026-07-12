@@ -196,6 +196,18 @@ public sealed partial class CleanerPage : Page, ISearchablePage, IPageActions
         if (!await ConfirmWarningsAsync(ViewModel.GetWarningsForSelectedEntries()))
             return;
 
+        // Scan first so we can show what will be deleted
+        await ((IAsyncRelayCommand)ViewModel.AnalyzeCommand).ExecuteAsync(null);
+
+        if (ViewModel.LastScanResults.Count == 0)
+        {
+            ViewModel.StatusText = ResourceService.Get("St_NothingToClean");
+            return;
+        }
+
+        if (!await ConfirmCleanAsync())
+            return;
+
         await ((IAsyncRelayCommand)ViewModel.RunCleanerCommand).ExecuteAsync(null);
     }
 
@@ -267,6 +279,112 @@ public sealed partial class CleanerPage : Page, ISearchablePage, IPageActions
                     TextWrapping = TextWrapping.Wrap
                 }
             }
+        };
+
+        return await dialog.ShowAsync() == ContentDialogResult.Primary;
+    }
+
+    // Pre-clean confirmation dialog: shows every file and registry key that will be deleted
+    private async Task<bool> ConfirmCleanAsync()
+    {
+        var results = ViewModel.LastScanResults;
+        int totalFiles = results.Sum(r => r.FilesToDelete.Count);
+        int totalReg   = results.Sum(r => r.RegistryToDelete.Count);
+        long totalBytes = results.Sum(r => r.TotalBytes);
+
+        var stack = new StackPanel { Spacing = 4 };
+
+        // Header with totals
+        stack.Children.Add(new TextBlock
+        {
+            Text       = ResourceService.Fmt("DlgCleanSummary", totalFiles, totalReg, ScanResult.FormatBytes(totalBytes)),
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            Margin     = new Thickness(0, 0, 0, 8)
+        });
+
+        // Per-entry groups
+        bool isDark = ActualTheme == Microsoft.UI.Xaml.ElementTheme.Dark;
+        foreach (var result in results.OrderByDescending(r => r.TotalBytes))
+        {
+            // Entry header
+            var entryHeader = new TextBlock
+            {
+                Text       = $"{result.Entry.Name}  ({result.FormattedSize})",
+                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
+                    isDark ? Windows.UI.Color.FromArgb(255, 150, 200, 255)
+                           : Windows.UI.Color.FromArgb(255, 30, 80, 160)),
+                Margin     = new Thickness(0, 8, 0, 2)
+            };
+            stack.Children.Add(entryHeader);
+
+            // Files (show first 10, then "... and N more")
+            int fileLimit = 10;
+            var files = result.FilesToDelete.Take(fileLimit).ToList();
+            foreach (var file in files)
+            {
+                stack.Children.Add(new TextBlock
+                {
+                    Text        = $"  {file}",
+                    FontSize    = 11,
+                    Foreground  = new Microsoft.UI.Xaml.Media.SolidColorBrush(
+                        isDark ? Windows.UI.Color.FromArgb(255, 200, 200, 200)
+                               : Windows.UI.Color.FromArgb(255, 80, 80, 80)),
+                    TextWrapping = TextWrapping.Wrap
+                });
+            }
+            if (result.FilesToDelete.Count > fileLimit)
+            {
+                stack.Children.Add(new TextBlock
+                {
+                    Text       = $"  ... {ResourceService.Fmt("DlgCleanAndMore", result.FilesToDelete.Count - fileLimit, ResourceService.Get("SuffixFiles"))}",
+                    FontSize   = 11,
+                    FontStyle  = Microsoft.UI.Xaml.FontStyle.Italic,
+                    Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
+                        isDark ? Windows.UI.Color.FromArgb(255, 150, 150, 150)
+                               : Windows.UI.Color.FromArgb(255, 120, 120, 120))
+                });
+            }
+
+            // Registry keys
+            int regLimit = 5;
+            var regs = result.RegistryToDelete.Take(regLimit).ToList();
+            foreach (var reg in regs)
+            {
+                stack.Children.Add(new TextBlock
+                {
+                    Text        = $"  {reg}",
+                    FontSize    = 11,
+                    Foreground  = new Microsoft.UI.Xaml.Media.SolidColorBrush(
+                        isDark ? Windows.UI.Color.FromArgb(255, 200, 200, 200)
+                               : Windows.UI.Color.FromArgb(255, 80, 80, 80)),
+                    TextWrapping = TextWrapping.Wrap
+                });
+            }
+            if (result.RegistryToDelete.Count > regLimit)
+            {
+                stack.Children.Add(new TextBlock
+                {
+                    Text       = $"  ... {ResourceService.Fmt("DlgCleanAndMore", result.RegistryToDelete.Count - regLimit, ResourceService.Get("SuffixRegistry"))}",
+                    FontSize   = 11,
+                    FontStyle  = Microsoft.UI.Xaml.FontStyle.Italic,
+                    Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
+                        isDark ? Windows.UI.Color.FromArgb(255, 150, 150, 150)
+                               : Windows.UI.Color.FromArgb(255, 120, 120, 120))
+                });
+            }
+        }
+
+        var dialog = new ContentDialog
+        {
+            XamlRoot          = XamlRoot,
+            RequestedTheme    = ActualTheme,
+            CornerRadius      = new CornerRadius(8),
+            Title             = ResourceService.Get("DlgCleanTitle"),
+            PrimaryButtonText = ResourceService.Fmt("DlgCleanDelete", ScanResult.FormatBytes(totalBytes)),
+            CloseButtonText   = ResourceService.Get("DlgCleanCancel"),
+            DefaultButton     = ContentDialogButton.Primary,
+            Content           = new ScrollViewer { MaxHeight = 480, Content = stack }
         };
 
         return await dialog.ShowAsync() == ContentDialogResult.Primary;
