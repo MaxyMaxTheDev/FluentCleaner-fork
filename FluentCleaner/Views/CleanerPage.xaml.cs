@@ -1,3 +1,4 @@
+using FluentCleaner.Models;
 using FluentCleaner.Services;
 using FluentCleaner.ViewModels;
 using CommunityToolkit.Mvvm.Input;
@@ -339,7 +340,7 @@ public sealed partial class CleanerPage : Page, ISearchablePage, IPageActions
                 {
                     Text       = $"  ... {ResourceService.Fmt("DlgCleanAndMore", result.FilesToDelete.Count - fileLimit, ResourceService.Get("SuffixFiles"))}",
                     FontSize   = 11,
-                    FontStyle  = Microsoft.UI.Xaml.FontStyle.Italic,
+                    FontStyle  = Windows.UI.Text.FontStyle.Italic,
                     Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
                         isDark ? Windows.UI.Color.FromArgb(255, 150, 150, 150)
                                : Windows.UI.Color.FromArgb(255, 120, 120, 120))
@@ -367,7 +368,7 @@ public sealed partial class CleanerPage : Page, ISearchablePage, IPageActions
                 {
                     Text       = $"  ... {ResourceService.Fmt("DlgCleanAndMore", result.RegistryToDelete.Count - regLimit, ResourceService.Get("SuffixRegistry"))}",
                     FontSize   = 11,
-                    FontStyle  = Microsoft.UI.Xaml.FontStyle.Italic,
+                    FontStyle  = Windows.UI.Text.FontStyle.Italic,
                     Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
                         isDark ? Windows.UI.Color.FromArgb(255, 150, 150, 150)
                                : Windows.UI.Color.FromArgb(255, 120, 120, 120))
