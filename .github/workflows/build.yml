@@ -32,3 +32,9 @@ jobs:
 
       - name: Build
         run: dotnet build FluentCleaner/FluentCleaner.csproj --configuration Release --no-restore -p:Platform=${{ matrix.platform }}
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: FluentCleaner-${{ matrix.platform }}
+          path: FluentCleaner/bin/${{ matrix.platform }}/Release/net10.0-windows10.0.19041.0/win-${{ matrix.platform }}/
